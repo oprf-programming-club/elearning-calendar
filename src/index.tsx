@@ -5,6 +5,7 @@ import React, {
   useReducer,
 } from "react";
 import ReactDOM from "react-dom";
+import { MdHome, MdSettings } from "react-icons/md";
 
 import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -13,10 +14,12 @@ dayjs.extend(isBetween);
 import * as configMenu from "./configMenu";
 import { insideRange } from "./data";
 import * as data from "./data";
-import * as config from "./config";
+import { dispatch as configReduce } from "./config";
 import { Calendar } from "./calendar";
 import { SchedulePanel } from "./schedule";
 import { defaultConfig, Config } from "./config";
+import { HashRouter, Link, Route } from "react-router-dom";
+import { IconType } from "react-icons/lib";
 
 export class YearMonth {
   constructor(public year: number, public month: number) {}
@@ -53,6 +56,9 @@ export class YearMonth {
   }
 }
 
+const ScheduleLazy = React.lazy(() => import("./schedule"));
+const ConfigLazy = React.lazy(() => import("./configMenu"));
+
 const App: FunctionComponent = () => {
   useEffect(() => {
     const id = setInterval(() => {
@@ -61,7 +67,7 @@ const App: FunctionComponent = () => {
     return () => clearInterval(id);
   });
   const [config, dispatchConfig] = useReducer(
-    configMenu.dispatch,
+    configReduce,
     null,
     (): Config => {
       const cfg = localStorage.getItem("calConfig");
@@ -72,35 +78,47 @@ const App: FunctionComponent = () => {
   const [activeDay, setActiveDay] = useState<data.CalendarDay>(() =>
     data.calendarDayFromDate(dayjs()),
   );
-  const [viewingMenu, setViewingMenu] = useState(false);
-  return viewingMenu ? (
-    <div>
-      <p>
-        <button onClick={() => setViewingMenu(false)}>back</button>
-      </p>
-      <configMenu.ConfigMenu dispatch={dispatchConfig} config={config} />
-    </div>
-  ) : (
-    <div>
+  return (
+    <React.Suspense fallback={<></>}>
       <div className="flexbar">
-        <div className="calcontainer">
-          <div className="flexbar">
-            <button onClick={() => setMonth(month.add(-1))}>{"<"}</button>
-            <div>
-              <b>{month.date.format("MMM YYYY")}</b>
+        <HashRouter hashType="noslash">
+          <Route path="/settings">
+            <ConfigLazy dispatch={dispatchConfig} config={config} />
+          </Route>
+          <Route exact path="/">
+            <div className="calcontainer">
+              <div className="flexbar">
+                <button onClick={() => setMonth(month.add(-1))}>{"<"}</button>
+                <div>
+                  <b>{month.date.format("MMM YYYY")}</b>
+                </div>
+                <button onClick={() => setMonth(month.add(1))}>{">"}</button>
+              </div>
+              <Calendar
+                onDayClick={setActiveDay}
+                month={month}
+                config={config}
+              />
             </div>
-            <button onClick={() => setMonth(month.add(1))}>{">"}</button>
+            <ScheduleLazy day={activeDay} config={config} />
+          </Route>
+          <div className="sidebar">
+            <SidebarIcon to="/" icon={MdHome} />
+            <SidebarIcon to="/settings" icon={MdSettings} />
           </div>
-          <Calendar onDayClick={setActiveDay} month={month} config={config} />
-        </div>
-        <SchedulePanel
-          day={activeDay}
-          viewMenuCb={() => setViewingMenu(true)}
-          config={config}
-        />
+        </HashRouter>
       </div>
-    </div>
+    </React.Suspense>
   );
 };
+
+const SidebarIcon: FunctionComponent<{ to: string; icon: IconType }> = ({
+  icon: Icon,
+  to,
+}) => (
+  <Link to={to}>
+    <Icon size="2vw" className="sidebaricon" />
+  </Link>
+);
 
 ReactDOM.render(<App />, document.getElementById("app"));

@@ -9,15 +9,14 @@ import {
 } from "./data";
 import { WithConfig } from "./config";
 import dayjs, { Dayjs } from "dayjs";
+import { Link } from "react-router-dom";
 
 interface SchedulePanelProps extends WithConfig {
   day: CalendarDay;
-  viewMenuCb: () => void;
 }
 export const SchedulePanel: FunctionComponent<SchedulePanelProps> = ({
   day,
   config,
-  viewMenuCb,
 }) => {
   return (
     <div className="schedule-panel colflex">
@@ -31,9 +30,6 @@ export const SchedulePanel: FunctionComponent<SchedulePanelProps> = ({
           </ul>
         )}
       </div>
-      <p>
-        <button onClick={viewMenuCb}>Edit Classes</button>
-      </p>
       <p>
         <a href="https://github.com/oprf-programming-club/elearning-calendar">
           Made with ❤️ by the OPRF programming club
@@ -78,3 +74,5 @@ const ClassItem: FunctionComponent<ClassItemProps> = ({
 
 const sameDay = (d: Dayjs, today: Dayjs) =>
   d.date(today.date()).month(today.month()).year(today.year());
+
+export default SchedulePanel;
