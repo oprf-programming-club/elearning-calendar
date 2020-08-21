@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "parcel serve src/index.html",
-    "dist": "parcel build src/index.html --experimental-scope-hoisting"
+    "dist": "parcel build src/index.html"
   },
   "dependencies": {
     "classnames": "^2.2.6",
@@ -24,7 +24,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-router": "^5.1.8",
     "@types/react-router-dom": "^5.1.5",
-    "parcel": "^1.12.4",
+    "parcel": "^2.0.0-nightly.376",
     "sass": "^1.26.10",
     "typescript": "^3.9.7"
   },
