@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "parcel serve src/index.html",
-    "dist": "parcel build src/index.html"
+    "dist": "parcel build src/index.html --experimental-scope-hoisting"
   },
   "dependencies": {
     "classnames": "^2.2.6",

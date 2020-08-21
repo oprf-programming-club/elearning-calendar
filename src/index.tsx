@@ -11,15 +11,15 @@ import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 dayjs.extend(isBetween);
 
-import * as configMenu from "./configMenu";
 import { insideRange } from "./data";
 import * as data from "./data";
 import { dispatch as configReduce } from "./config";
 import { Calendar } from "./calendar";
-import { SchedulePanel } from "./schedule";
 import { defaultConfig, Config } from "./config";
 import { HashRouter, Link, Route } from "react-router-dom";
 import { IconType } from "react-icons/lib";
+import ConfigMenu from "./configMenu";
+import SchedulePanel from "./schedule";
 
 export class YearMonth {
   constructor(public year: number, public month: number) {}
@@ -56,9 +56,6 @@ export class YearMonth {
   }
 }
 
-const ScheduleLazy = React.lazy(() => import("./schedule"));
-const ConfigLazy = React.lazy(() => import("./configMenu"));
-
 const App: FunctionComponent = () => {
   useEffect(() => {
     const id = setInterval(() => {
@@ -83,7 +80,7 @@ const App: FunctionComponent = () => {
       <div className="flexbar">
         <HashRouter hashType="noslash">
           <Route path="/settings">
-            <ConfigLazy dispatch={dispatchConfig} config={config} />
+            <ConfigMenu dispatch={dispatchConfig} config={config} />
           </Route>
           <Route exact path="/">
             <div className="calcontainer">
@@ -100,7 +97,7 @@ const App: FunctionComponent = () => {
                 config={config}
               />
             </div>
-            <ScheduleLazy day={activeDay} config={config} />
+            <SchedulePanel day={activeDay} config={config} />
           </Route>
           <div className="sidebar">
             <SidebarIcon to="/" icon={MdHome} />
