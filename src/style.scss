@@ -1,0 +1,68 @@
+$main_a: rgb(255, 207, 118);
+$main_b: rgb(140, 206, 230);
+$accent_a: rgb(227, 248, 255);
+$accent_b: rgb(236, 236, 236);
+.calendargrid {
+  font-size: 0.82vw;
+
+  td {
+    vertical-align: top;
+    height: 11vh;
+    min-width: 10vw;
+    border: solid 1px black;
+    > ul {
+      padding-left: 1.5vw;
+    }
+  }
+
+  .aday {
+    background-color: $main_a;
+  }
+  .bday {
+    background-color: $main_b;
+  }
+  tr:nth-child(even) > .noday:nth-child(even),
+  tr:nth-child(odd) > .noday:nth-child(odd) {
+    background-color: $accent_a;
+  }
+  tr:nth-child(odd) > .noday:nth-child(even),
+  tr:nth-child(even) > .noday:nth-child(odd) {
+    background-color: $accent_b;
+  }
+}
+
+.flexbar {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+}
+
+.calcontainer {
+  display: inline-block;
+}
+
+.lmar {
+  margin-left: 0.75vw;
+  margin-bottom: 1vh;
+}
+.nomar {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.nomartop {
+  margin-top: 0;
+}
+
+.schedule-panel {
+  text-align: left;
+  flex-grow: 1;
+  margin: 0 8px;
+  padding: 3px 10px;
+  border: solid 1px black;
+  background-color: $accent_a;
+  margin-bottom: 2px;
+}
+
+.cls-upcoming {
+  background-color: #ffff00;
+}
