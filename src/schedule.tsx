@@ -23,11 +23,13 @@ export const SchedulePanel: FunctionComponent<SchedulePanelProps> = ({
     <div className="schedule-panel colflex">
       <div>
         <h3>{day.date.format("MMM D YYYY")}</h3>
-        <ul>
-          {getClassesForDay(day, config).map((c) => (
-            <ClassItem key={c.cls.period} cls={c} day={day} />
-          ))}
-        </ul>
+        {day.isA == null ? null : (
+          <ul>
+            {getClassesForDay(day, config).map((c) => (
+              <ClassItem key={c.cls.period} cls={c} day={day} />
+            ))}
+          </ul>
+        )}
       </div>
       <p>
         <button onClick={viewMenuCb}>Edit Classes</button>
@@ -45,7 +47,6 @@ interface ClassItemProps {
   cls: ClassWithTime;
   day: CalendarDay;
 }
-let now = dayjs("aug 20 2020 7:20 am");
 const ClassItem: FunctionComponent<ClassItemProps> = ({
   cls: { cls, dayPeriod },
   day,

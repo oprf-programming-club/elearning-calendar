@@ -97,8 +97,8 @@ export interface CalendarDay {
   isA: boolean | null;
 }
 
-export const calendarDayFromDate = (d: Dayjs) => {
-  const day = dayjs().startOf("d");
+export const calendarDayFromDate = (d: Dayjs): CalendarDay => {
+  const day = d.startOf("d");
   const week = day.startOf("w");
   let isA = isSkipped(day) || day.isBefore(firstDay) ? null : isAWeek(week);
   let curDay = day.day(1);
