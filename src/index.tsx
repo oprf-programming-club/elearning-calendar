@@ -93,13 +93,11 @@ const App: FunctionComponent = () => {
           </div>
           <Calendar onDayClick={setActiveDay} month={month} config={config} />
         </div>
-        <div className="schedule-panel">
-          <SchedulePanel
-            day={activeDay}
-            viewMenuCb={() => setViewingMenu(true)}
-            config={config}
-          />
-        </div>
+        <SchedulePanel
+          day={activeDay}
+          viewMenuCb={() => setViewingMenu(true)}
+          config={config}
+        />
       </div>
     </div>
   );

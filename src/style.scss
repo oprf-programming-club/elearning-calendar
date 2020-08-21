@@ -70,3 +70,9 @@ $accent_b: rgb(236, 236, 236);
 #app {
   font-family: sans-serif;
 }
+
+.colflex {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}

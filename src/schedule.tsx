@@ -20,13 +20,15 @@ export const SchedulePanel: FunctionComponent<SchedulePanelProps> = ({
   viewMenuCb,
 }) => {
   return (
-    <>
-      <h3>{day.date.format("MMM D YYYY")}</h3>
-      <ul>
-        {getClassesForDay(day, config).map((c) => (
-          <ClassItem key={c.cls.period} cls={c} day={day} />
-        ))}
-      </ul>
+    <div className="schedule-panel colflex">
+      <div>
+        <h3>{day.date.format("MMM D YYYY")}</h3>
+        <ul>
+          {getClassesForDay(day, config).map((c) => (
+            <ClassItem key={c.cls.period} cls={c} day={day} />
+          ))}
+        </ul>
+      </div>
       <p>
         <button onClick={viewMenuCb}>Edit Classes</button>
       </p>
@@ -35,7 +37,7 @@ export const SchedulePanel: FunctionComponent<SchedulePanelProps> = ({
           Made with ❤️ by the OPRF programming club
         </a>
       </p>
-    </>
+    </div>
   );
 };
 
