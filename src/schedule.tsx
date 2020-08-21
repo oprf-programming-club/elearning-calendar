@@ -67,7 +67,9 @@ const ClassItem: FunctionComponent<ClassItemProps> = ({
       )}
       {cls.meeting == null ? null : (
         <p>
-          <a href={cls.meeting}>Meeting Link</a>
+          <a href={cls.meeting} target="_blank" rel="noopener noreferrer">
+            Meeting Link
+          </a>
         </p>
       )}
     </li>
