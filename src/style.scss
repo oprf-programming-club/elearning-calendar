@@ -86,8 +86,16 @@ $accent_b: rgb(236, 236, 236);
   flex-direction: column;
   align-items: center;
   padding: 0.25vw 0;
-  .sidebaricon {
-    color: rgb(53, 53, 53);
+  > a {
+    width: 2vw;
+    .sidebaricon {
+      color: rgb(53, 53, 53);
+      height: 100%;
+      width: 100%;
+      &.activeicon {
+        color: #000653;
+      }
+    }
   }
 }
 

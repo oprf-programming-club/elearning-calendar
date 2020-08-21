@@ -6,6 +6,7 @@ import React, {
 } from "react";
 import ReactDOM from "react-dom";
 import { MdHome, MdSettings } from "react-icons/md";
+import cx from "classnames";
 
 import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -16,7 +17,7 @@ import * as data from "./data";
 import { dispatch as configReduce } from "./config";
 import { Calendar } from "./calendar";
 import { defaultConfig, Config } from "./config";
-import { HashRouter, Link, Route } from "react-router-dom";
+import { HashRouter, Link, Route, useRouteMatch } from "react-router-dom";
 import { IconType } from "react-icons/lib";
 import ConfigMenu from "./configMenu";
 import SchedulePanel from "./schedule";
@@ -100,7 +101,7 @@ const App: FunctionComponent = () => {
             <SchedulePanel day={activeDay} config={config} />
           </Route>
           <div className="sidebar">
-            <SidebarIcon to="/" icon={MdHome} />
+            <SidebarIcon exact to="/" icon={MdHome} />
             <SidebarIcon to="/settings" icon={MdSettings} />
           </div>
         </HashRouter>
@@ -109,13 +110,17 @@ const App: FunctionComponent = () => {
   );
 };
 
-const SidebarIcon: FunctionComponent<{ to: string; icon: IconType }> = ({
-  icon: Icon,
-  to,
-}) => (
-  <Link to={to}>
-    <Icon size="2vw" className="sidebaricon" />
-  </Link>
-);
+const SidebarIcon: FunctionComponent<{
+  to: string;
+  icon: IconType;
+  exact?: boolean;
+}> = ({ icon: Icon, to, exact }) => {
+  const matched = useRouteMatch({ path: to, exact });
+  return (
+    <Link to={to}>
+      <Icon className={cx("sidebaricon", !!matched && "activeicon")} />
+    </Link>
+  );
+};
 
 ReactDOM.render(<App />, document.getElementById("app"));

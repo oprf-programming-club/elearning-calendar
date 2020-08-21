@@ -16,9 +16,9 @@ export const ConfigMenu: FunctionComponent<ConfigMenuProps> = ({
   return (
     <div className="flexlist">
       {classes.map(([targetClass, cls]) => (
-        <div>
+        <div key={cls.period}>
           {`Period ${cls.period}:`}
-          <div key={cls.period} className="lmar">
+          <div className="lmar">
             <p>
               <label>
                 {"Class name: "}
