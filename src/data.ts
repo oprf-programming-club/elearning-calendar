@@ -39,7 +39,12 @@ export class YearMonth {
 }
 
 // sorted array of off days, e.g. labor day 🌹
-export const skippedDays: Dayjs[] = [dayjs("September 7 2020")];
+export const skippedDays: Dayjs[] = [
+  dayjs("September 7 2020"),
+  dayjs("September 4 2020"),
+  dayjs("October 9 2020"),
+  dayjs("October 12 2020"),
+];
 
 export const isSkipped = (d: Dayjs) =>
   skippedDays.some((skipped) => d.isSame(skipped, "d"));
