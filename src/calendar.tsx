@@ -1,4 +1,4 @@
-import { YearMonth } from "./";
+import { YearMonth } from "./app";
 import { WithConfig } from "./config";
 import { isAWeek, daysInWeek, isSkipped, CalendarDay, isWeekend } from "./data";
 import * as data from "./data";
