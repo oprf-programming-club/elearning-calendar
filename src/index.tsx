@@ -8,6 +8,11 @@ import ReactDOM from "react-dom";
 import { MdHome, MdSettings } from "react-icons/md";
 import cx from "classnames";
 
+const PopupLazy = React.lazy(() =>
+  //@ts-ignore
+  import("reactjs-popup").then((x) => ({ default: x })),
+);
+
 import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 dayjs.extend(isBetween);
@@ -67,63 +72,81 @@ const App: FunctionComponent = () => {
     }, 1000 * 60 * 10); // 10 minutes
     return () => clearInterval(id);
   });
+  const [tooltipActive, setTooltipActive] = useState(false);
   const [config, dispatchConfig] = useReducer(
     configReduce,
     null,
     (): Config => {
       const cfg = localStorage.getItem("calConfig");
-      return cfg ? JSON.parse(cfg) : defaultConfig;
+      if (cfg) {
+        return JSON.parse(cfg);
+      }
+      return defaultConfig;
     },
   );
+  useEffect(() => {
+    if (localStorage.getItem("calConfig")) return;
+    const id = setTimeout(() => setTooltipActive(true), 2000);
+    return () => clearTimeout(id);
+  }, []);
   const [month, setMonth] = useState(() => YearMonth.thisMonth());
   const [activeDay, setActiveDay] = useState<data.CalendarDay>(() =>
     data.calendarDayFromDate(dayjs()),
   );
   return (
-    <React.Suspense fallback={<></>}>
-      <div className="flexbar">
-        <HashRouter hashType="noslash">
-          <Route path="/settings">
-            <ConfigMenu dispatch={dispatchConfig} config={config} />
-          </Route>
-          <Route exact path="/">
-            <div className="calcontainer">
-              <div className="flexbar">
-                <button onClick={() => setMonth(month.add(-1))}>{"<"}</button>
-                <div>
-                  <b>{month.date.format("MMM YYYY")}</b>
-                </div>
-                <button onClick={() => setMonth(month.add(1))}>{">"}</button>
+    <div className="flexbar">
+      <HashRouter hashType="noslash">
+        <Route path="/settings">
+          <ConfigMenu dispatch={dispatchConfig} config={config} />
+        </Route>
+        <Route exact path="/">
+          <div className="calcontainer">
+            <div className="flexbar">
+              <button onClick={() => setMonth(month.add(-1))}>{"<"}</button>
+              <div>
+                <b>{month.date.format("MMM YYYY")}</b>
               </div>
-              <Calendar
-                onDayClick={setActiveDay}
-                month={month}
-                config={config}
-              />
+              <button onClick={() => setMonth(month.add(1))}>{">"}</button>
             </div>
-            <SchedulePanel day={activeDay} config={config} />
-          </Route>
-          <div className="sidebar">
-            <SidebarIcon exact to="/" icon={MdHome} />
-            <SidebarIcon to="/settings" icon={MdSettings} />
+            <Calendar onDayClick={setActiveDay} month={month} config={config} />
           </div>
-        </HashRouter>
-      </div>
-    </React.Suspense>
+          <SchedulePanel day={activeDay} config={config} />
+        </Route>
+        <div className="sidebar">
+          <SidebarIcon exact to="/" icon={MdHome} />
+          <Popup
+            trigger={<SidebarIcon to="/settings" icon={MdSettings} />}
+            open={tooltipActive}
+            position="left bottom"
+            onClose={() => setTooltipActive(false)}
+          >
+            <span>go to settings to fill in classes</span>
+          </Popup>
+        </div>
+      </HashRouter>
+    </div>
   );
 };
 
-const SidebarIcon: FunctionComponent<{
-  to: string;
-  icon: IconType;
-  exact?: boolean;
-}> = ({ icon: Icon, to, exact }) => {
-  const matched = useRouteMatch({ path: to, exact });
+const Popup: FunctionComponent<import("reactjs-popup").Props> = (props) => (
+  <React.Suspense fallback={props.trigger || null}>
+    <PopupLazy {...props} />
+  </React.Suspense>
+);
+
+const SidebarIcon: FunctionComponent<
+  import("react-router-dom").LinkProps & {
+    to: string;
+    icon: IconType;
+    exact?: boolean;
+  }
+> = React.forwardRef(({ icon: Icon, exact, ...props }, ref) => {
+  const matched = useRouteMatch({ path: props.to, exact });
   return (
-    <Link to={to}>
+    <Link {...props} ref={ref as any}>
       <Icon className={cx("sidebaricon", !!matched && "activeicon")} />
     </Link>
   );
-};
+});
 
 ReactDOM.render(<App />, document.getElementById("app"));
