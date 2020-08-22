@@ -12,7 +12,7 @@ import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 dayjs.extend(isBetween);
 
-import { insideRange } from "./data";
+import { insideRange, weeksFrom } from "./data";
 import * as data from "./data";
 import { dispatch as configReduce } from "./config";
 import { Calendar } from "./calendar";
@@ -42,15 +42,18 @@ export class YearMonth {
   get endDate() {
     return this.date.endOf("M");
   }
-  get weeks() {
+  *weeks(weekdaysOnly: boolean = false) {
     const { startDate, endDate } = this;
-    const weeks = [];
-    let curWeek = startDate.startOf("w");
-    while (curWeek.isBefore(endDate)) {
-      weeks.push(curWeek);
-      curWeek = curWeek.add(1, "w");
+    let start = startDate;
+    if (weekdaysOnly && startDate.day() == 6) {
+      start = start.add(1, "w");
     }
-    return weeks;
+    for (const curWeek of weeksFrom(start)) {
+      const isLast = curWeek.isSame(endDate, "w");
+      const skip = isLast && weekdaysOnly && endDate.day() == 0;
+      if (!skip) yield curWeek;
+      if (isLast) break;
+    }
   }
   inside(d: Dayjs) {
     return insideRange(d, this.date, "w");

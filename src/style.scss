@@ -3,7 +3,7 @@ $main_b: rgb(140, 206, 230);
 $accent_a: rgb(227, 248, 255);
 $accent_b: rgb(236, 236, 236);
 .calendargrid {
-  font-size: 0.82vw;
+  font-size: 14px;
 
   td {
     vertical-align: top;
@@ -28,6 +28,12 @@ $accent_b: rgb(236, 236, 236);
   tr:nth-child(odd) > .noday:nth-child(even),
   tr:nth-child(even) > .noday:nth-child(odd) {
     background-color: $accent_b;
+  }
+}
+
+@media (max-width: 1280px) {
+  .calClassTime {
+    display: none;
   }
 }
 

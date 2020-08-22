@@ -9,7 +9,7 @@ import {
 } from "./data";
 import { WithConfig } from "./config";
 import dayjs, { Dayjs } from "dayjs";
-import { Link } from "react-router-dom";
+import iterate from "iterare";
 
 interface SchedulePanelProps extends WithConfig {
   day: CalendarDay;
@@ -24,9 +24,9 @@ export const SchedulePanel: FunctionComponent<SchedulePanelProps> = ({
         <h3>{day.date.format("MMM D YYYY")}</h3>
         {day.isA == null ? null : (
           <ul>
-            {getClassesForDay(day, config).map((c) => (
-              <ClassItem key={c.cls.period} cls={c} day={day} />
-            ))}
+            {iterate(getClassesForDay(day, config))
+              .map((c) => <ClassItem key={c.cls.period} cls={c} day={day} />)
+              .toArray()}
           </ul>
         )}
       </div>

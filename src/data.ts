@@ -1,11 +1,17 @@
 import * as config from "./config";
 import dayjs, { Dayjs } from "dayjs";
+import iterate from "iterare";
 
 // sorted array of off days, e.g. labor day 🌹
 export const skippedDays: Dayjs[] = [dayjs("September 7 2020")];
 
 export const isSkipped = (d: Dayjs) =>
   skippedDays.some((skipped) => d.isSame(skipped, "d"));
+
+export const isWeekend = (d: Dayjs) => {
+  const day = d.day();
+  return day === 0 || day === 6;
+};
 
 export const numSkippedInWeek = (w: Dayjs) => {
   let n = 0;
@@ -51,20 +57,15 @@ export function insideRange(d: Dayjs, range: Dayjs, ty: dayjs.OpUnitType) {
   return d.isBetween(range.startOf(ty), range.endOf(ty));
 }
 
-export function daysInWeek(w: Dayjs): Dayjs[];
-export function daysInWeek<T>(w: Dayjs, map: (d: Dayjs) => T): T[];
-export function daysInWeek(w: Dayjs, map?: (d: Dayjs) => any): any[] {
-  const days = [];
-  const endDate = w.endOf("w");
+export function* daysInWeek(w: Dayjs): Iterable<Dayjs> {
   let curDay = w.startOf("w");
-  while (curDay.isBefore(endDate)) {
-    days.push(map ? map(curDay) : curDay);
+  while (curDay.isSame(w, "week")) {
+    yield curDay;
     curDay = curDay.add(1, "d");
   }
-  return days;
 }
 
-function* weeksFrom(d: Dayjs) {
+export function* weeksFrom(d: Dayjs) {
   let cur = d.startOf("w");
   while (true) {
     yield cur;
@@ -121,26 +122,25 @@ export function getClassesForDay(
   day: CalendarDay,
   config: config.Config,
   includeNoAdvisory?: false,
-): ClassWithTime[];
+): Iterable<ClassWithTime>;
 export function getClassesForDay(
   day: CalendarDay,
   config: config.Config,
   includeNoAdvisory: true,
-): Array<ClassWithTime | null>;
-export function getClassesForDay(
+): Iterable<ClassWithTime | null>;
+export function* getClassesForDay(
   day: CalendarDay,
   config: config.Config,
   includeNoAdvisory?: boolean,
-): Array<ClassWithTime | null> {
-  return [
-    ...(isAdvisoryDay(day.date)
-      ? [{ dayPeriod: -1, cls: config.advisory }]
-      : includeNoAdvisory
-      ? [null]
-      : []),
-    ...(day.isA
-      ? config.classes.slice(0, 4)
-      : config.classes.slice(4, 8)
-    ).map((cls, i) => ({ dayPeriod: i, cls })),
-  ];
+): Iterable<ClassWithTime | null> {
+  if (isAdvisoryDay(day.date)) {
+    yield { dayPeriod: -1, cls: config.advisory };
+  } else if (includeNoAdvisory) {
+    yield null;
+  }
+  const firstPeriod = day.isA ? 0 : 4;
+  let i = 0;
+  yield* iterate(config.classes)
+    .slice(firstPeriod, firstPeriod + 5)
+    .map((cls) => ({ dayPeriod: i++, cls }));
 }
