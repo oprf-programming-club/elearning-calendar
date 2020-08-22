@@ -2,6 +2,42 @@ import * as config from "./config";
 import dayjs, { Dayjs } from "dayjs";
 import iterate from "iterare";
 
+export class YearMonth {
+  public readonly date: Dayjs;
+  public readonly startDate: Dayjs;
+  public readonly endDate: Dayjs;
+  constructor(public readonly year: number, public readonly month: number) {
+    this.date = dayjs().year(this.year).month(this.month);
+    this.startDate = this.date.startOf("M");
+    this.endDate = this.date.endOf("M");
+  }
+  static fromDate(d: Dayjs) {
+    return new YearMonth(d.year(), d.month());
+  }
+  static thisMonth() {
+    return YearMonth.fromDate(dayjs());
+  }
+  add(n: number) {
+    return YearMonth.fromDate(this.date.add(n, "M"));
+  }
+  *weeks(weekdaysOnly: boolean = false) {
+    const { startDate, endDate } = this;
+    let start = startDate;
+    if (weekdaysOnly && startDate.day() == 6) {
+      start = start.add(1, "w");
+    }
+    for (const curWeek of weeksFrom(start)) {
+      const isLast = curWeek.isSame(endDate, "w");
+      const skip = isLast && weekdaysOnly && endDate.day() == 0;
+      if (!skip) yield curWeek;
+      if (isLast) break;
+    }
+  }
+  inside(d: Dayjs) {
+    return insideRange(d, this.date, "w");
+  }
+}
+
 // sorted array of off days, e.g. labor day 🌹
 export const skippedDays: Dayjs[] = [dayjs("September 7 2020")];
 
@@ -101,7 +137,10 @@ export interface CalendarDay {
 export const calendarDayFromDate = (d: Dayjs): CalendarDay => {
   const day = d.startOf("d");
   const week = day.startOf("w");
-  let isA = isSkipped(day) || day.isBefore(firstDay) ? null : isAWeek(week);
+  let isA =
+    isSkipped(day) || day.isBefore(firstDay) || isWeekend(day)
+      ? null
+      : isAWeek(week);
   let curDay = day.day(1);
   if (isA != null) {
     while (true) {

@@ -22,7 +22,9 @@ export const SchedulePanel: FunctionComponent<SchedulePanelProps> = ({
     <div className="schedule-panel colflex">
       <div>
         <h3>{day.date.format("MMM D YYYY")}</h3>
-        {day.isA == null ? null : (
+        {day.isA == null ? (
+          <p>Nothing for today!</p>
+        ) : (
           <ul>
             {iterate(getClassesForDay(day, config))
               .map((c) => <ClassItem key={c.cls.period} cls={c} day={day} />)

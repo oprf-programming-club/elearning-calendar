@@ -4,20 +4,14 @@ import React, {
   useEffect,
   useReducer,
 } from "react";
-import ReactDOM from "react-dom";
 import { MdHome, MdSettings } from "react-icons/md";
 import cx from "classnames";
 
-const PopupLazy = React.lazy(() =>
-  //@ts-ignore
-  import("reactjs-popup").then((x) => ({ default: x })),
-);
-
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 dayjs.extend(isBetween);
 
-import { insideRange, weeksFrom } from "./data";
+import { YearMonth } from "./data";
 import * as data from "./data";
 import { dispatch as configReduce } from "./config";
 import { Calendar } from "./calendar";
@@ -27,57 +21,28 @@ import { IconType } from "react-icons/lib";
 import ConfigMenu from "./configMenu";
 import SchedulePanel from "./schedule";
 
-export class YearMonth {
-  constructor(public year: number, public month: number) {}
-  static fromDate(d: Dayjs) {
-    return new YearMonth(d.year(), d.month());
+let lstorageResult: string | null | undefined = undefined;
+const getStorage = () => {
+  if (lstorageResult === undefined) {
+    lstorageResult = localStorage.getItem("calConfig");
   }
-  static thisMonth() {
-    return YearMonth.fromDate(dayjs());
-  }
-  add(n: number) {
-    return YearMonth.fromDate(this.date.add(n, "M"));
-  }
-  get date() {
-    return dayjs().year(this.year).month(this.month);
-  }
-  get startDate() {
-    return this.date.startOf("M");
-  }
-  get endDate() {
-    return this.date.endOf("M");
-  }
-  *weeks(weekdaysOnly: boolean = false) {
-    const { startDate, endDate } = this;
-    let start = startDate;
-    if (weekdaysOnly && startDate.day() == 6) {
-      start = start.add(1, "w");
-    }
-    for (const curWeek of weeksFrom(start)) {
-      const isLast = curWeek.isSame(endDate, "w");
-      const skip = isLast && weekdaysOnly && endDate.day() == 0;
-      if (!skip) yield curWeek;
-      if (isLast) break;
-    }
-  }
-  inside(d: Dayjs) {
-    return insideRange(d, this.date, "w");
-  }
-}
+  return lstorageResult;
+};
 
-const App: FunctionComponent = () => {
+export const App: FunctionComponent = () => {
   useEffect(() => {
     const id = setInterval(() => {
       setActiveDay(data.calendarDayFromDate(dayjs()));
     }, 1000 * 60 * 10); // 10 minutes
     return () => clearInterval(id);
   });
+  const [tooltipEnabled, setTooltipEnabled] = useState(() => !getStorage());
   const [tooltipActive, setTooltipActive] = useState(false);
   const [config, dispatchConfig] = useReducer(
     configReduce,
     null,
     (): Config => {
-      const cfg = localStorage.getItem("calConfig");
+      const cfg = getStorage();
       if (cfg) {
         return JSON.parse(cfg);
       }
@@ -85,7 +50,7 @@ const App: FunctionComponent = () => {
     },
   );
   useEffect(() => {
-    if (localStorage.getItem("calConfig")) return;
+    if (getStorage()) return;
     const id = setTimeout(() => setTooltipActive(true), 2000);
     return () => clearTimeout(id);
   }, []);
@@ -115,10 +80,14 @@ const App: FunctionComponent = () => {
         <div className="sidebar">
           <SidebarIcon exact to="/" icon={MdHome} />
           <Popup
+            enable={tooltipEnabled}
             trigger={<SidebarIcon to="/settings" icon={MdSettings} />}
             open={tooltipActive}
             position="left bottom"
-            onClose={() => setTooltipActive(false)}
+            onClose={() => {
+              setTooltipActive(false);
+              setTooltipEnabled(false);
+            }}
           >
             <span>go to settings to fill in classes</span>
           </Popup>
@@ -127,12 +96,6 @@ const App: FunctionComponent = () => {
     </div>
   );
 };
-
-const Popup: FunctionComponent<import("reactjs-popup").Props> = (props) => (
-  <React.Suspense fallback={props.trigger || null}>
-    <PopupLazy {...props} />
-  </React.Suspense>
-);
 
 const SidebarIcon: FunctionComponent<
   import("react-router-dom").LinkProps & {
@@ -149,4 +112,23 @@ const SidebarIcon: FunctionComponent<
   );
 });
 
-ReactDOM.render(<App />, document.getElementById("app"));
+const PopupLazy = React.lazy(() =>
+  // @ts-ignore
+  import("reactjs-popup").then((x) =>
+    // this is about the dumbest thing i've ever seen
+    process.env.NODE_ENV == "production" ? x : { default: x },
+  ),
+);
+const Popup: FunctionComponent<
+  import("reactjs-popup").Props & {
+    trigger: React.ReactElement;
+    enable: boolean;
+  }
+> = (props) => {
+  if (!props.enable) return props.trigger;
+  return (
+    <React.Suspense fallback={props.trigger}>
+      <PopupLazy {...props} />
+    </React.Suspense>
+  );
+};

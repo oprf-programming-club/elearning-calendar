@@ -1,6 +1,12 @@
-import { YearMonth } from "./app";
 import { WithConfig } from "./config";
-import { isAWeek, daysInWeek, isSkipped, CalendarDay, isWeekend } from "./data";
+import {
+  YearMonth,
+  isAWeek,
+  daysInWeek,
+  isSkipped,
+  CalendarDay,
+  isWeekend,
+} from "./data";
 import * as data from "./data";
 
 import iterate from "iterare";
