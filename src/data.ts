@@ -131,7 +131,7 @@ export const isAWeek = (w: Dayjs): boolean => {
       }
     }
   }
-  return false;
+  return true;
 };
 
 export interface CalendarDay {
