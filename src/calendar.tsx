@@ -12,6 +12,7 @@ import * as data from "./data";
 import iterate from "iterare";
 
 import React, { FunctionComponent } from "react";
+import cx from "classnames";
 
 interface CalendarProps extends WithConfig {
   month: YearMonth;
@@ -44,7 +45,11 @@ export const Calendar: FunctionComponent<CalendarProps> = ({
               <td
                 onClick={() => onDayClick(calDay)}
                 key={+day}
-                className={show ? (isA ? "aday" : "bday") : "noday"}
+                className={cx(
+                  "calday",
+                  show ? (isA ? "aday" : "bday") : "noday",
+                  (day < month.startDate || day > month.endDate) && "notmonth",
+                )}
               >
                 <CalDay day={calDay} config={config} />
               </td>

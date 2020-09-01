@@ -5,13 +5,29 @@ $accent_b: rgb(236, 236, 236);
 .calendargrid {
   font-size: 14px;
 
-  td {
+  .calday {
+    position: relative;
     vertical-align: top;
     height: 11vh;
     min-width: 10vw;
     border: solid 1px black;
     > ul {
       padding-left: 1.5vw;
+    }
+  }
+
+  .aday,
+  .bday {
+    &.notmonth:after {
+      content: "";
+      z-index: 10;
+      display: block;
+      position: absolute;
+      height: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.2);
     }
   }
 
