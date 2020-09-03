@@ -4,7 +4,8 @@ import React, {
   useEffect,
   useReducer,
 } from "react";
-import { MdHome, MdSettings } from "react-icons/md";
+import { MdSettings } from "react-icons/md";
+import { IoMdCalendar } from "react-icons/io";
 import cx from "classnames";
 
 import dayjs from "dayjs";
@@ -78,7 +79,7 @@ export const App: FunctionComponent = () => {
           <SchedulePanel day={activeDay} config={config} />
         </Route>
         <div className="sidebar">
-          <SidebarIcon exact to="/" icon={MdHome} />
+          <SidebarIcon exact to="/" icon={IoMdCalendar} />
           <Popup
             enable={tooltipEnabled}
             trigger={<SidebarIcon to="/settings" icon={MdSettings} />}
