@@ -52,8 +52,13 @@ export const skippedDays: Dayjs[] = [
   dayjs("November 27 2020"),
 ];
 
+const skippedRanges: DateRange[] = [
+  [dayjs("December 24 2020"), dayjs("January 8 2021")],
+];
+
 export const isSkipped = (d: Dayjs) =>
-  skippedDays.some((skipped) => d.isSame(skipped, "d"));
+  skippedDays.some((skipped) => d.isSame(skipped, "d")) ||
+  skippedRanges.some(([start, end]) => d.isBetween(start, end, null, "[]"));
 
 export const isWeekend = (d: Dayjs) => {
   const day = d.day();
@@ -75,7 +80,10 @@ export const numSkippedInWeek = (w: Dayjs) => {
 export const firstDay: Dayjs = dayjs("19 aug 2020");
 
 // [week, isAWeek]
-export const rootWeeks: [Dayjs, boolean][] = [[firstDay.startOf("w"), true]];
+export const rootWeeks: [Dayjs, boolean][] = [
+  [dayjs("January 11 2021").startOf("w"), true],
+  [firstDay.startOf("w"), true],
+];
 
 export const isAdvisoryDay = (d: Dayjs) => d.day() == 3; // wednesday
 

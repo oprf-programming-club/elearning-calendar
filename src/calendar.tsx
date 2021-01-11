@@ -24,11 +24,8 @@ export const Calendar: FunctionComponent<CalendarProps> = ({
   onDayClick,
 }) => {
   const weeks = month.weeks(true);
-  let curDayIsA: boolean | null = null;
   const rows = iterate(weeks).map((week) => {
-    if (curDayIsA == null) {
-      curDayIsA = isAWeek(week);
-    }
+    let curDayIsA = isAWeek(week);
     return (
       <tr key={+week}>
         {iterate(daysInWeek(week))
