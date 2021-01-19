@@ -50,6 +50,7 @@ export const skippedDays: Dayjs[] = [
   dayjs("November 25 2020"),
   dayjs("November 26 2020"),
   dayjs("November 27 2020"),
+  dayjs("January 18 2021"),
 ];
 
 const skippedRanges: DateRange[] = [
