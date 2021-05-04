@@ -6,6 +6,8 @@ import {
   ClassWithTime,
   formatRange,
   getClassTimes,
+  classifySchedule,
+  periodCountdownMinutes,
 } from "./data";
 import { WithConfig } from "./config";
 import dayjs, { Dayjs } from "dayjs";
@@ -49,10 +51,14 @@ const ClassItem: FunctionComponent<ClassItemProps> = ({
   cls: { cls, dayPeriod },
   day,
 }) => {
-  const times = getClassTimes(day.date, dayPeriod);
+  const sched = classifySchedule(day.date);
+  const times = getClassTimes(sched, dayPeriod);
   const start = sameDay(times[0], day.date),
     end = sameDay(times[1], day.date);
-  const upcoming = dayjs().isBetween(start.subtract(15, "m"), end);
+  const upcoming = dayjs().isBetween(
+    start.subtract(periodCountdownMinutes[sched], "m"),
+    end,
+  );
   return (
     <li className={cx(upcoming && "cls-upcoming")}>
       <p>

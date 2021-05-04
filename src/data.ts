@@ -93,7 +93,7 @@ const v2ScheduleStart = dayjs("February 1 2021");
 
 type ScheduleMap<V> = { [k in ScheduleKind]: V };
 
-const classifySchedule = (day: Dayjs): ScheduleKind =>
+export const classifySchedule = (day: Dayjs): ScheduleKind =>
   day.isBefore(v2ScheduleStart) ? "v1" : "v2";
 
 // [week, isAWeek]
@@ -139,9 +139,16 @@ const classRanges: ScheduleMap<DateRange[]> = {
   }
 }
 
-export const getClassTimes = (day: Dayjs, daypd: number) => {
-  const sched = classifySchedule(day);
-  return daypd == -1 ? advisoryRange[sched] : classRanges[sched][daypd];
+export const getClassTimes = (sched: ScheduleKind, daypd: number) =>
+  daypd == -1 ? advisoryRange[sched] : classRanges[sched][daypd];
+
+/**
+ * the amount of time before the next period when it should begin to be highlighted
+ * in the side panel, per schedule, in minutes
+ */
+export const periodCountdownMinutes: ScheduleMap<number> = {
+  v1: 15,
+  v2: 5,
 };
 
 const rangeFmt = "h:mm";

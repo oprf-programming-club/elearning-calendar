@@ -79,10 +79,11 @@ const CalDay: FunctionComponent<CalDayProps> = ({ day, config }) => {
               if (c == null)
                 return <React.Fragment key={-1}>{"\u200b"}</React.Fragment>;
               const { dayPeriod, cls } = c;
+              const sched = data.classifySchedule(day.date);
               return (
                 <li key={cls.period} className="calClassItem">
                   <span className="calClassTime">
-                    {data.getClassTimes(day.date, dayPeriod)[0].format("hh:mm")}
+                    {data.getClassTimes(sched, dayPeriod)[0].format("hh:mm")}
                     {" - "}
                   </span>
                   {cls.name}
