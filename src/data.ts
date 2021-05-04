@@ -86,6 +86,16 @@ export const numSkippedInWeek = (w: Dayjs) => {
 
 export const firstDay: Dayjs = dayjs("19 aug 2020");
 
+// should be const enum Schedule but babel doesn't support it
+type ScheduleKind = "v1" | "v2";
+
+const v2ScheduleStart = dayjs("February 1 2021");
+
+type ScheduleMap<V> = { [k in ScheduleKind]: V };
+
+const classifySchedule = (day: Dayjs): ScheduleKind =>
+  day.isBefore(v2ScheduleStart) ? "v1" : "v2";
+
 // [week, isAWeek]
 export const rootWeeks: [Dayjs, boolean][] = [
   [dayjs("January 11 2021").startOf("w"), true],
@@ -98,18 +108,41 @@ export type DateRange = [Dayjs, Dayjs];
 
 const oclock = (h: number, m: number) => dayjs().hour(h).minute(m).startOf("m");
 
-export const advisoryRange: DateRange = [oclock(8, 35), oclock(8, 45)];
+const advisoryRange: ScheduleMap<DateRange> = {
+  v1: [oclock(8, 35), oclock(8, 45)],
+  v2: [oclock(10, 10), oclock(10, 25)],
+};
 
-const classRanges: DateRange[] = [];
-let start = oclock(9, 0);
-for (let i = 0; i < 4; i++) {
-  const end = start.add(1, "hour");
-  classRanges.push([start, end]);
-  start = end.add(30, "m");
+const classRanges: ScheduleMap<DateRange[]> = {
+  v1: [],
+  v2: [],
+};
+
+{
+  let start = oclock(9, 0);
+  for (let i = 0; i < 4; i++) {
+    const end = start.add(1, "hour");
+    classRanges.v1.push([start, end]);
+    start = end.add(30, "m");
+  }
+}
+{
+  let start = oclock(8, 0);
+  for (let i = 0; i < 4; i++) {
+    const end = start.add(1, "hour");
+    classRanges.v2.push([start, end]);
+    start = end.add(5, "m");
+    if (i == 1) {
+      // advisory 15min + 5min
+      start = start.add(20, "m");
+    }
+  }
 }
 
-export const getClassTimes = (daypd: number) =>
-  daypd == -1 ? advisoryRange : classRanges[daypd];
+export const getClassTimes = (day: Dayjs, daypd: number) => {
+  const sched = classifySchedule(day);
+  return daypd == -1 ? advisoryRange[sched] : classRanges[sched][daypd];
+};
 
 const rangeFmt = "h:mm";
 export const formatRange = ([start, end]: DateRange) =>
@@ -198,14 +231,30 @@ export function* getClassesForDay(
   config: config.Config,
   includeNoAdvisory?: boolean,
 ): Iterable<ClassWithTime | null> {
-  if (isAdvisoryDay(day.date)) {
-    yield { dayPeriod: -1, cls: config.advisory };
-  } else if (includeNoAdvisory) {
-    yield null;
+  switch (classifySchedule(day.date)) {
+    case "v1": {
+      if (isAdvisoryDay(day.date)) {
+        yield { dayPeriod: -1, cls: config.advisory };
+      } else if (includeNoAdvisory) {
+        yield null;
+      }
+      const firstPeriod = day.isA ? 0 : 4;
+      let i = 0;
+      yield* iterate(config.classes)
+        .slice(firstPeriod, firstPeriod + 5)
+        .map((cls) => ({ dayPeriod: i++, cls }));
+      break;
+    }
+
+    case "v2": {
+      const periods = day.isA ? [0, 1, -1, 2, 3] : [5, 6, -1, 7, 4];
+      let i = 0;
+      yield* iterate(periods).map((pd) =>
+        pd == -1
+          ? { dayPeriod: -1, cls: config.advisory }
+          : { dayPeriod: i++, cls: config.classes[pd] },
+      );
+      break;
+    }
   }
-  const firstPeriod = day.isA ? 0 : 4;
-  let i = 0;
-  yield* iterate(config.classes)
-    .slice(firstPeriod, firstPeriod + 5)
-    .map((cls) => ({ dayPeriod: i++, cls }));
 }

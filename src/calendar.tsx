@@ -82,7 +82,7 @@ const CalDay: FunctionComponent<CalDayProps> = ({ day, config }) => {
               return (
                 <li key={cls.period} className="calClassItem">
                   <span className="calClassTime">
-                    {data.getClassTimes(dayPeriod)[0].format("hh:mm")}
+                    {data.getClassTimes(day.date, dayPeriod)[0].format("hh:mm")}
                     {" - "}
                   </span>
                   {cls.name}

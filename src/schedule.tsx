@@ -49,7 +49,7 @@ const ClassItem: FunctionComponent<ClassItemProps> = ({
   cls: { cls, dayPeriod },
   day,
 }) => {
-  const times = getClassTimes(dayPeriod);
+  const times = getClassTimes(day.date, dayPeriod);
   const start = sameDay(times[0], day.date),
     end = sameDay(times[1], day.date);
   const upcoming = dayjs().isBetween(start.subtract(15, "m"), end);
