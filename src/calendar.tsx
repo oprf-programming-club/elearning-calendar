@@ -33,10 +33,11 @@ export const Calendar: FunctionComponent<CalendarProps> = ({
             const isA = curDayIsA;
             const skip = isSkipped(day) || isWeekend(day);
             if (!skip) curDayIsA = !curDayIsA;
-            const show = !(skip || day.isBefore(data.firstDay));
+            const hide =
+              skip || day.isBefore(data.firstDay) || day.isAfter(data.lastDay);
             const calDay: CalendarDay = {
               date: day,
-              isA: show ? isA : null,
+              isA: hide ? null : isA,
             };
             return (
               <td
@@ -44,7 +45,7 @@ export const Calendar: FunctionComponent<CalendarProps> = ({
                 key={+day}
                 className={cx(
                   "calday",
-                  show ? (isA ? "aday" : "bday") : "noday",
+                  hide ? "noday" : isA ? "aday" : "bday",
                   (day < month.startDate || day > month.endDate) && "notmonth",
                 )}
               >

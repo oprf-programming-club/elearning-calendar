@@ -85,6 +85,7 @@ export const numSkippedInWeek = (w: Dayjs) => {
 };
 
 export const firstDay: Dayjs = dayjs("19 aug 2020");
+export const lastDay: Dayjs = dayjs("28 may 2021");
 
 // should be const enum Schedule but babel doesn't support it
 type ScheduleKind = "v1" | "v2";
@@ -203,10 +204,12 @@ export interface CalendarDay {
 export const calendarDayFromDate = (d: Dayjs): CalendarDay => {
   const day = d.startOf("d");
   const week = day.startOf("w");
-  let isA =
-    isSkipped(day) || day.isBefore(firstDay) || isWeekend(day)
-      ? null
-      : isAWeek(week);
+  const noSchool =
+    isSkipped(day) ||
+    day.isBefore(firstDay) ||
+    day.isAfter(lastDay) ||
+    isWeekend(day);
+  let isA = noSchool ? null : isAWeek(week);
   let curDay = day.day(1);
   if (isA != null) {
     while (true) {
